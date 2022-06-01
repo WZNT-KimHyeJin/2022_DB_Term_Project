@@ -29,7 +29,7 @@ try {
 <body>
 <div class="bt_logout">
         <h1 class="text-center"><a href="main.php"> CNU Cinema</a></h1>
-    </div>
+</div>
 <div class="container">
 
     <form class="row">
@@ -43,6 +43,7 @@ try {
         </div>
         <div class="col-auto text-end">
             <button type="submit" class="btn btn-primary mb-3">검색</button>
+
         </div>
     </form>
     <h2 class="text-center">MOVIE SCHEDULE</h2>
@@ -59,16 +60,16 @@ try {
         <tbody>
 
             <?php
-
+            // 이거 나중에 수정 해야함
             if($searchDate==''){
                 $searchDate = isset($_POST["searchWord"]) ? $searchDate : '@';
                 $stmt = $conn -> prepare("SELECT TP_MOVIE.MID, TITLE, TO_CHAR(SDATETIME,'YY-MM-DD'), RATING 
                 FROM TP_MOVIE,TP_SCHEDULE WHERE TP_MOVIE.MID=TP_SCHEDULE.MID 
                 and LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
+                and '20'||TO_CHAR(SDATETIME,'YY-MM-DD') <= TO_CHAR(SYSDATE,'YYYY-MM-DD')
                 and not '20'||TO_CHAR(SDATETIME,'YY-MM-DD') LIKE :searchDate
                 ORDER BY SDATETIME 
                 ");
-                // $stmt -> execute(array($searchWord));
                 $stmt -> execute(array($searchWord,$searchDate));
 
 
@@ -96,9 +97,6 @@ try {
             $stmt -> execute(array($searchWord,$searchDate));
 
             }
-            // $stmt = $conn -> prepare("SELECT TP_MOVIE.MID, TITLE, TO_CHAR(SDATETIME,'YY-MM-DD'), RATING FROM TP_MOVIE,TP_SCHEDULE WHERE TP_MOVIE.MID=TP_SCHEDULE.MID 
-            // and LOWER(TITLE) LIKE '%'
-            // || :searchWord || '%' ORDER BY SDATETIME");
             while ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
             ?>
             <tr>

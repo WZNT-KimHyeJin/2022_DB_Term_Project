@@ -5,22 +5,31 @@ $tns = "
         (CONNECT_DATA= (SERVICE_NAME=XE)) )";
 $dsn = "oci:dbname=".$tns.";charset=utf8";
 $username = 'd201902679'; $password = '1003';
+
+session_start();
+$id = $_SESSION["id"];
 $MID = $_GET['mvid'];
 try {
     $conn = new PDO($dsn, $username, $password);
 } catch (PDOException $e) {
     echo("에러 내용: ".$e -> getMessage());
 }
-$stmt = $conn -> prepare("SELECT MID, TITLE, RATING FROM TP_MOVIE WHERE MID = ? ");
+$stmt = $conn -> prepare("SELECT MID, TITLE, RATING,OPEN_DAY,DIRECTOR,LENGTH FROM TP_MOVIE WHERE MID = ? ");
 $stmt -> execute(array($MID));
 $TITLE = '';
 $RATING = '';
 $MID = '';
+$OPEN_DAY='';
+$DIRECTOR='';
+$LENGTH='';
 
 if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
     $MID = $row['MID'];
     $TITLE = $row['TITLE'];
     $RATING = $row['RATING'];
+    $OPEN_DAY = $row['OPEN_DAY'];
+    $DIRECTOR = $row['DIRECTOR'];
+    $LENGTH = $row['LENGTH'];
 ?>
 
 <!DOCTYPE html>
@@ -34,23 +43,32 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
     <title>MOVIE INFO</title>
 </head>
 <body>
+<div class="bt_logout">
+        <h1 class="text-center"><a href="main.php"> CNU Cinema</a></h1>
+</div>
     <div class="container">
         <h2 class="display-6">상세 화면</h2>
         <table class="table table-bordered text-center">
             <tbody>
                 <tr> <td>영화 ID</td> <td><?= $MID ?></td> </tr>
                 <tr> <td>영화 제목</td> <td><?= $TITLE ?></td> </tr>
-                <tr> <td>관람 등급</td> <td><?= $RATING ?></td> </tr>
+                <tr> <td>관람 연령 등급</td> <td><?= $RATING ?></td> </tr>
+                <tr> <td>상영 시간</td> <td><?= $LENGTH ?>분</td> </tr>
+                <tr> <td>개봉날짜</td> <td><?= $OPEN_DAY ?></td> </tr>
+                <tr> <td>감독</td> <td><?= $DIRECTOR ?></td> </tr>
+
+
             </tbody>
         </table>
         <?php
         }
         ?>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-    <a href="search_mv.php" class="btn btn-success">목록</a>
-    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">예매</button>
+            <a href="search_mv.php" class="btn btn-success">목록</a>
+            <a href="input.php?MID=<?= $MID ?>&mode=modify" class="btn btn-warning">수정</a>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">예매</button>
 
-    </div>
+        </div>
     </div>
     <!-- Delete Confirm Modal -->
     <div class="modal fade" id="deleteConfirmModal" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
@@ -62,9 +80,9 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
                 </div>
                 <div class="modal-body"> 영화를 예매하시겠습니까? </div>
                     <div class="modal-footer">
-                        <form action="reservation.php?mode=reserve" method="post" class="row">
-                        <input type="hidden" name="mvID" value="<?= $MID ?>">
-                        <button type="submit" class="btn btn-danger">예매</button>
+                        <form action="reservation.php" method="post" class="row">
+                            <input type="hidden" name="mvID" value="<?= $MID ?>">
+                            <button type="submit" class="btn btn-danger">예매</button>
                         </form>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
                     </div>
