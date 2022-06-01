@@ -1,16 +1,18 @@
 <?php
+
+session_start();
+$id = $_SESSION["id"];
 $tns = "
-(DESCRIPTION=
-(ADDRESS_LIST= (ADDRESS=(PROTOCOL=TCP)(HOST=KimHyejin)(PORT=1521)))
-(CONNECT_DATA= (SERVICE_NAME=XE))
-)";
+    (DESCRIPTION=
+    (ADDRESS_LIST= (ADDRESS=(PROTOCOL=TCP)(HOST=KimHyejin)(PORT=1521)))
+    (CONNECT_DATA= (SERVICE_NAME=XE))
+    )";
 $dsn = "oci:dbname=".$tns.";charset=utf8";
 try {
-$conn = new PDO($dsn, "d201902679", "1003");
+    $conn = new PDO($dsn, "d201902679", "1003");
 } catch (PDOException $e) {
-echo("에러 내용: ".$e->getMessage());
+    echo("에러 내용: ".$e->getMessage());
 }
-$id = 1;
 ?>
 
 
