@@ -57,5 +57,8 @@ switch($_GET['mode']){
         $stmt->execute();
         header("Location: search_mv.php?MID=$MID");
         break;
+    case 'reserve' :
+        
+        break;
     }
     ?>

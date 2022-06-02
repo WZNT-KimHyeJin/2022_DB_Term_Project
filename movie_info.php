@@ -30,6 +30,7 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
     $OPEN_DAY = $row['OPEN_DAY'];
     $DIRECTOR = $row['DIRECTOR'];
     $LENGTH = $row['LENGTH'];
+    
 ?>
 
 <!DOCTYPE html>
@@ -80,8 +81,8 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
                 </div>
                 <div class="modal-body"> 영화를 예매하시겠습니까? </div>
                     <div class="modal-footer">
-                        <form action="reservation.php" method="post" class="row">
-                            <input type="hidden" name="mvID" value="<?= $MID ?>">
+                        <form action="reservation.php?MID=<?= $MID ?>" method="post" class="row">
+                            <input type="hidden" name="MID" value="<?= $MID ?>">
                             <button type="submit" class="btn btn-danger">예매</button>
                         </form>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
@@ -89,6 +90,7 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
             </div>
         </div>
     </div>
+
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-
 gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
