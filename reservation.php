@@ -52,7 +52,7 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
         <h1 class="text-center"><a href="main.php"> CNU Cinema</a></h1>
 </div>
     <div class="container">
-        <h4 class="display-6">영화 예약 : <?= $TITLE ?></h4>
+        <h4 class="display-6">상영 리스트 : <?= $TITLE ?></h4>
         <table class="table table-bordered text-center">
             
             <tbody>
