@@ -46,6 +46,15 @@ try {
 
         </div>
     </form>
+</br>
+
+    <div class ='col'>
+        <a href="search_mv.php?&mode=on_show" class="btn btn-danger">상영중</a>
+        <a href="search_mv.php?&mode=be_shown" class="btn btn-warning">상영예정</a>
+    </div>
+
+</br>
+</br>
     <h2 class="text-center">MOVIE SCHEDULE</h2>
     <table class="table table-bordered text-center">
         <thead> 
@@ -60,13 +69,12 @@ try {
         <tbody>
 
             <?php
-            // 이거 나중에 수정 해야함
             if($searchDate==''){
                 $searchDate = isset($_POST["searchWord"]) ? $searchDate : '@';
                 $stmt = $conn -> prepare("SELECT TP_MOVIE.MID, TITLE, TO_CHAR(SDATETIME,'YY-MM-DD'), RATING 
                 FROM TP_MOVIE,TP_SCHEDULE WHERE TP_MOVIE.MID=TP_SCHEDULE.MID 
                 and LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
-                and '20'||TO_CHAR(SDATETIME,'YY-MM-DD') <= TO_CHAR(SYSDATE,'YYYY-MM-DD')
+                and '20'||TO_CHAR(SDATETIME+1,'YY-MM-DD') >= TO_CHAR(SYSDATE,'YYYY-MM-DD')
                 and not '20'||TO_CHAR(SDATETIME,'YY-MM-DD') LIKE :searchDate
                 ORDER BY SDATETIME 
                 ");
@@ -80,7 +88,8 @@ try {
                 $stmt = $conn -> prepare("SELECT TP_MOVIE.MID, TITLE, TO_CHAR(SDATETIME,'YY-MM-DD'), RATING 
                 FROM TP_MOVIE,TP_SCHEDULE WHERE TP_MOVIE.MID=TP_SCHEDULE.MID 
                 and not LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
-                and '20'||TO_CHAR(SDATETIME,'YY-MM-DD') LIKE :searchDate
+                and '20'||TO_CHAR(SDATETIME,'YY-MM-DD') >= TO_CHAR(SYSDATE,'YYYY-MM-DD')
+                and not '20'||TO_CHAR(SDATETIME,'YY-MM-DD') LIKE :searchDate
                 ORDER BY SDATETIME 
                 ");
                 $stmt -> execute(array($searchWord, $searchDate));
@@ -91,7 +100,8 @@ try {
                 $stmt = $conn -> prepare("SELECT TP_MOVIE.MID, TITLE, TO_CHAR(SDATETIME,'YY-MM-DD'), RATING 
             FROM TP_MOVIE,TP_SCHEDULE WHERE TP_MOVIE.MID=TP_SCHEDULE.MID 
             and LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
-            and '20'||TO_CHAR(SDATETIME,'YY-MM-DD') LIKE :searchDate
+            and '20'||TO_CHAR(SDATETIME+1,'YY-MM-DD') >= TO_CHAR(SYSDATE,'YYYY-MM-DD')
+            and not '20'||TO_CHAR(SDATETIME,'YY-MM-DD') LIKE :searchDate
             ORDER BY SDATETIME 
             ");
             $stmt -> execute(array($searchWord,$searchDate));

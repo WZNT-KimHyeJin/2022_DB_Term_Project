@@ -1,13 +1,11 @@
 <?php
 session_start();
-// $id = $_SESSION["id"];
-// $MID = $_GET['MID'];
-// $SDATETIME = $_GET['SDATETIME'];
-// $TNAME = $_GET['TNAME'];
-$id = '1';
-$MID = '10394';
-$SDATETIME = '22-05-03 11:00';
-$TNAME = 'ahtohallan';
+$id = $_SESSION["id"];
+$MID = $_GET['MID'];
+$SDATETIME = $_GET['SDATETIME'];
+$TNAME = $_GET['TNAME'];
+$CNT = $_GET['CNT'] ?? 0;
+$seat_list =$_GET['seat_list'] ?? '';
 
 
 $tns = "
@@ -51,6 +49,7 @@ ORDER BY TH.TNAME
     <title>RESERVATION</title>
 </head>
 <body>
+
 <div class="bt_logout">
         <h1 class="text-center"><a href="main.php"> CNU Cinema</a></h1>
 </div>
@@ -63,45 +62,59 @@ ORDER BY TH.TNAME
     </div>
 
     <table class="table table-bordered text-center">
-    <from action="reservPage.php" method="post">        
     <tbody>
         <tr>
             <td colspan='5'>SCREEN</td>
+        </tr>
+        <form action="process.php?MID=<?= $MID ?>&SDATETIME=<?= $SDATETIME ?>&TNAME=<?= $TNAME ?>&mode=reserve" method="post">
+                <tr> 
+                    <td>A1<input type="checkbox" name = "seat[]" value="A1"></td> 
+                    <td>A2<input type="checkbox" name = "seat[]"value="A2"></td> 
+                    <td>A3<input type="checkbox" name = "seat[]" value="A3"></td> 
+                    <td>A4<input type="checkbox" name = "seat[]" value="A4"></td> 
+                    <td>A5<input type="checkbox" name = "seat[]" value="A5"></td> 
                 </tr>
                 <tr> 
-                    <td>A1<input type="checkbox" value="A1"></td> 
-                    <td>A2<input type="checkbox" value="A2"></td> 
-                    <td>A3<input type="checkbox" value="A3"></td> 
-                    <td>A4<input type="checkbox" value="A4"></td> 
-                    <td>A5<input type="checkbox" value="A5"></td> 
+                    <td>B1<input type="checkbox" name = "seat[]" value="B1"></td> 
+                    <td>B2<input type="checkbox" name = "seat[]" value="B2"></td> 
+                    <td>B3<input type="checkbox" name = "seat[]" value="B3"></td> 
+                    <td>B4<input type="checkbox" name = "seat[]" value="B4"></td> 
+                    <td>B5<input type="checkbox" name = "seat[]" value="B5"></td> 
                 </tr>
                 <tr> 
-                    <td>B1<input type="checkbox" value="B1"></td> 
-                    <td>B2<input type="checkbox" value="B2"></td> 
-                    <td>B3<input type="checkbox" value="B3"></td> 
-                    <td>B4<input type="checkbox" value="B4"></td> 
-                    <td>B5<input type="checkbox" value="B5"></td> 
-                </tr>
-                <tr> 
-                    <td>C1<input type="checkbox" value="C"></td> 
-                    <td>C2<input type="checkbox" value="C2"></td> 
-                    <td>C3<input type="checkbox" value="C3"></td> 
-                    <td>C4<input type="checkbox" value="C4"></td> 
-                    <td>C5<input type="checkbox" value="C5"></td> 
+                    <td>C1<input type="checkbox" name = "seat[]" value="C"></td> 
+                    <td>C2<input type="checkbox" name = "seat[]" value="C2"></td> 
+                    <td>C3<input type="checkbox" name = "seat[]" value="C3"></td> 
+                    <td>C4<input type="checkbox" name = "seat[]" value="C4"></td> 
+                    <td>C5<input type="checkbox" name = "seat[]" value="C5"></td> 
                 </tr>
                 
             </tbody>
     </table>
 </div>
-<div class="modal-footer">
-    <form action="reservation.php?MID=<?= $MID ?>" method="post" class="row">
-        <input type="hidden" name="MID" value="<?= $MID ?>">
-        <button type="submit" class="btn btn-danger">예매</button>
+<?php
+    if($CNT == 0){
+        ?>
+        
+            <script>alert('좌석을 선택 해 주세요');</script>
+        <?php
+    }else if($CNT>10){
+        ?>
+            <script>alert('선택 가능 좌석은 최대 10석 입니다. (<?=$CNT?>/10)');</script>
+        <?php
+    }
+    
+        ?>
+
+
+<div class="modal-footer" >
+        <button type="submit" class="btn btn-danger"data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">예매</button>
     </form>
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-</div>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+    </div>
 <?php
     }
     ?>
+
 </body>
 </html>

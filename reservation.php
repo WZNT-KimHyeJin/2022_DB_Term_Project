@@ -9,6 +9,7 @@ $username = 'd201902679'; $password = '1003';
 session_start();
 $id = $_SESSION["id"];
 $MID = $_GET['MID'] ?? ''; 
+$CNT =0;
 
 try {
     $conn = new PDO($dsn, $username, $password);
@@ -19,6 +20,7 @@ $stmt = $conn -> prepare("SELECT MV.MID, MV.TITLE, TH.TNAME, TO_CHAR(SC.SDATETIM
 LEFT OUTER JOIN TP_MOVIE MV ON SC.MID = MV.MID
 INNER JOIN TP_THEATER TH ON TH.TNAME = SC.TNAME
 WHERE MV.MID = ?
+and '20'||TO_CHAR(SDATETIME+1,'YY-MM-DD HH:MI')>=TO_CHAR(SYSDATE,'YYYY-MM-DD HH:MI')
 ORDER BY TH.TNAME 
  ");
 $stmt -> execute(array($MID));
@@ -57,7 +59,7 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
             
             <tbody>
                 <tr>
-                    <td>영화관</td>
+                    <td>상영</td>
                     <td>영화 제목</td>
                     <td>상영 시간</td>
                     <td>잔여 좌석</td>
@@ -71,7 +73,7 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
                     <td><?= $row['MVTIME'] ?></td> 
                     <td><?= $row['SEATS'] ?></td> 
                     <td>
-                        <form action="reservePage.php?MID=<?= $MID ?>&SDATETIME=<?= $SDATETIME ?>&TNAME=<?= $TNAME ?>" method="post" class="row">
+                        <form action="reservePage.php?MID=<?= $MID ?>&SDATETIME=<?= $SDATETIME ?>&TNAME=<?= $TNAME ?>&CNT=<?= $CNT ?>" method="post" class="row">
                         <button type="submit" class="btn btn-success">예매</button>
                         </form>
                     <td>

@@ -53,6 +53,7 @@ while ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
         <script>alert('password가 일치하지 않습니다.');</script>
         <?php
     }else{
+        // 로그인 성공 시 id를 session에 저장하고 main페이지로 이동
         session_start();
         $_SESSION['id'] = $id;
         ?>
@@ -61,6 +62,7 @@ while ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
     }
 }
 ?>
+        <!--form을 통해 입력받은 id와 pw를 post방식으로 현재 php에 전송 -->
         <form method="post">
             <div class="col-12">
                 <label for="id" class="col-4 text-center">ID</label>
