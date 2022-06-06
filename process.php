@@ -2,10 +2,8 @@
 
 session_start();
 $id = $_SESSION["id"];
-$MID = $_GET['MID'];
-$SDATETIME = $_GET['SDATETIME'];
-$TNAME = $_GET['TNAME'];
-$CNT=0;
+
+
 $tns = "
     (DESCRIPTION=
     (ADDRESS_LIST= (ADDRESS=(PROTOCOL=TCP)(HOST=KimHyejin)(PORT=1521)))
@@ -40,6 +38,8 @@ switch($_GET['mode']){
         header("Location: serach_mv.php");
         break;
     case 'modify':
+
+
         $stmt = $conn->prepare("UPDATE TP_MOVIE SET MID=:MID, TITLE=:TITLE, OPEN_DAY=:OPEN_DAY, DIRECTOR=:DIRECTOR, RATING=:RATING,LENGTH=:LENGTH
         WHERE MID = :MID");
         $stmt->bindParam(':MID',$MID); 
@@ -57,35 +57,43 @@ switch($_GET['mode']){
         $RATING = $DIRECTOR['DIRECTOR']; 
         $RATING = $LENGTH['LENGTH']; 
 
-
         $stmt->execute();
-        header("Location: search_mv.php?MID=$MID");
+
         break;
     case 'reserve' :
+        $SDATETIME = '20'.$_POST['SDATETIME']; 
+        $RSTATUS='R';
+        $CID=$id;
+        $SCID = $_POST['SCID']; 
         $seat_list=$_POST["seat"];
+        
+        $CNT=0;
         
         foreach($seat_list as $seat_num){
             $CNT++;
         }
         if($CNT<10 && $CNT > 0){
-            foreach($seat_list as $seat_num){
+            foreach($seat_list as $SEAT_NUM){
 
-                
-                $stmt = $conn -> prepare("INSERT INTO TP_TICKECTING(ID, RC_DATE, SEATS, DIRECTOR, RATING, LENGTH) 
-                VALUES ((SELECT NVL(MAX(MID), 0) + 1 FROM TP_MOVIE), :TITLE, :OPEN_DAY, :DIRECTOR,:RATING,:LENGTH)");
 
-                $stmt->bindParam(':MID',$MID); 
-                $stmt->bindParam(':TITLE',$TITLE); 
-                $stmt->bindParam(':OPEN_DAY',$OPEN_DAY);
-                $stmt->bindParam(':RATING',$RATING);
-                
-                $MID = $_POST['MID'];
-                $TITLE = $_POST['TITLE']; 
-                $OPEN_DAY = $_POST['OPEN_DAY'];
-                $RATING = $_POST['RATING']; 
-                
+                $stmt = $conn -> prepare("INSERT INTO TP_TICKETING(RC_DATE, SEATS, STATUS, CID, SID) 
+                VALUES ( TO_DATE(:SDATETIME, 'YYYY-MM-DD HH:MI'), :SEAT_NUM, :RSTATUS,:CID,:SCID)");
+
+                $stmt->bindParam(':SDATETIME',$SDATETIME); 
+                echo($SDATETIME);
+                $stmt->bindParam(':SEAT_NUM',$SEAT_NUM); 
+                echo($SEAT_NUM);
+                $stmt->bindParam(':RSTATUS',$RSTATUS); 
+                echo($RSTATUS);
+                $stmt->bindParam(':CID',$CID); 
+                echo($CID);
+                $stmt->bindParam(':SCID',$SCID); 
+                echo($SCID);
+
+
                 $stmt->execute();
-                header("Location: serach_mv.php");
+                echo "<script>location.href='booklist.php'; alert('영화가 예매되었습니다.')</script>";
+
                 break;
             }
         }
@@ -93,5 +101,5 @@ switch($_GET['mode']){
         header("Location: reservePage.php?MID=$MID&SDATETIME=$SDATETIME&TNAME=$TNAME&CNT=$CNT&seat_list=$seat_list");
         
         break;
-    }
-    ?>
+}
+?>

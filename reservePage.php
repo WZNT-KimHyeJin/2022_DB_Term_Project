@@ -16,7 +16,8 @@ $tns = "
 $dsn = "oci:dbname=".$tns.";charset=utf8";
 $conn = new PDO($dsn, "d201902679", "1003");
 
-$stmt = $conn -> prepare("SELECT MV.MID, MV.TITLE, TH.TNAME, TO_CHAR(SC.SDATETIME,'YY-MM-DD HH:MI') AS MVTIME, TH.SEATS FROM TP_SCHEDULE SC
+$stmt = $conn -> prepare("SELECT MV.MID, MV.TITLE, TH.TNAME, TO_CHAR(SC.SDATETIME,'YY-MM-DD HH:MI') AS MVTIME, TH.SEATS, SC.SID
+FROM TP_SCHEDULE SC
 LEFT OUTER JOIN TP_MOVIE MV ON SC.MID = MV.MID
 INNER JOIN TP_THEATER TH ON TH.TNAME = SC.TNAME
 WHERE MV.MID = ?
@@ -28,6 +29,7 @@ ORDER BY TH.TNAME
  $MID = '';
  $SDATETIME='';
  $SEATS='';
+ $SCID =''; 
  
  if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
      $MID = $row['MID'];
@@ -35,6 +37,8 @@ ORDER BY TH.TNAME
      $TNAME = $row['TNAME'];
      $SDATETIME = $row['MVTIME'];
      $SEATS = $row['SEATS'];
+     $SCID = $row['SID']; 
+
 
 ?>
 <!DOCTYPE html>
@@ -66,27 +70,27 @@ ORDER BY TH.TNAME
         <tr>
             <td colspan='5'>SCREEN</td>
         </tr>
-        <form action="process.php?MID=<?= $MID ?>&SDATETIME=<?= $SDATETIME ?>&TNAME=<?= $TNAME ?>&mode=reserve" method="post">
+        <form action="process.php??MID=<?= $MID ?>&mode=reserve" method="post">
                 <tr> 
-                    <td>A1<input type="checkbox" name = "seat[]" value="A1"></td> 
-                    <td>A2<input type="checkbox" name = "seat[]"value="A2"></td> 
-                    <td>A3<input type="checkbox" name = "seat[]" value="A3"></td> 
-                    <td>A4<input type="checkbox" name = "seat[]" value="A4"></td> 
-                    <td>A5<input type="checkbox" name = "seat[]" value="A5"></td> 
+                    <td>A1<input type="checkbox" name = "seat[]" value=1></td> 
+                    <td>A2<input type="checkbox" name = "seat[]"value=2></td> 
+                    <td>A3<input type="checkbox" name = "seat[]" value=3></td> 
+                    <td>A4<input type="checkbox" name = "seat[]" value=4></td> 
+                    <td>A5<input type="checkbox" name = "seat[]" value=5></td> 
                 </tr>
                 <tr> 
-                    <td>B1<input type="checkbox" name = "seat[]" value="B1"></td> 
-                    <td>B2<input type="checkbox" name = "seat[]" value="B2"></td> 
-                    <td>B3<input type="checkbox" name = "seat[]" value="B3"></td> 
-                    <td>B4<input type="checkbox" name = "seat[]" value="B4"></td> 
-                    <td>B5<input type="checkbox" name = "seat[]" value="B5"></td> 
+                    <td>B1<input type="checkbox" name = "seat[]" value=6></td> 
+                    <td>B2<input type="checkbox" name = "seat[]" value=7></td> 
+                    <td>B3<input type="checkbox" name = "seat[]" value=8></td> 
+                    <td>B4<input type="checkbox" name = "seat[]" value=9></td> 
+                    <td>B5<input type="checkbox" name = "seat[]" value=10></td> 
                 </tr>
                 <tr> 
-                    <td>C1<input type="checkbox" name = "seat[]" value="C"></td> 
-                    <td>C2<input type="checkbox" name = "seat[]" value="C2"></td> 
-                    <td>C3<input type="checkbox" name = "seat[]" value="C3"></td> 
-                    <td>C4<input type="checkbox" name = "seat[]" value="C4"></td> 
-                    <td>C5<input type="checkbox" name = "seat[]" value="C5"></td> 
+                    <td>C1<input type="checkbox" name = "seat[]" value=11></td> 
+                    <td>C2<input type="checkbox" name = "seat[]" value=12></td> 
+                    <td>C3<input type="checkbox" name = "seat[]" value=13></td> 
+                    <td>C4<input type="checkbox" name = "seat[]" value=14></td> 
+                    <td>C5<input type="checkbox" name = "seat[]" value=15></td> 
                 </tr>
                 
             </tbody>
@@ -108,7 +112,12 @@ ORDER BY TH.TNAME
 
 
 <div class="modal-footer" >
-        <button type="submit" class="btn btn-danger"data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">예매</button>
+        <input type="hidden" name="MID" value="<?= $MID ?>">
+        <input type="hidden" name="SDATETIME" value="<?= $SDATETIME ?>">
+        <input type="hidden" name="TNAME" value="<?= $TNAME ?>">
+        <input type="hidden" name="SCID" value="<?= $SCID ?>">
+
+        <button type="submit" class="btn btn-danger">예매</button>
     </form>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
     </div>
