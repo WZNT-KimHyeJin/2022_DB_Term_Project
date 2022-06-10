@@ -1,10 +1,10 @@
 <?php
-$tns = "
-    (DESCRIPTION=
-        (ADDRESS_LIST= (ADDRESS=(PROTOCOL=TCP)(HOST=KimHyejin)(PORT=1521)))
-        (CONNECT_DATA= (SERVICE_NAME=XE)) )";
+$tns = "(DESCRIPTION=
+(ADDRESS_LIST= (ADDRESS=(PROTOCOL=TCP)(HOST=KimHyejin)(PORT=1521)))
+(CONNECT_DATA= (SERVICE_NAME=XE)) )";
 $dsn = "oci:dbname=".$tns.";charset=utf8";
 $username = 'd201902679'; $password = '1003';
+$conn = new PDO($dsn, $username, $password);
 
 session_start();
 $id = $_SESSION["id"];
@@ -66,7 +66,6 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
         ?>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <a href="search_mv.php" class="btn btn-success">목록</a>
-            <a href="input.php?MID=<?= $MID ?>&mode=modify" class="btn btn-warning">수정</a>
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">예매</button>
 
         </div>

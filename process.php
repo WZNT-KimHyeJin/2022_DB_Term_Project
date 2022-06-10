@@ -13,53 +13,7 @@ $dsn = "oci:dbname=".$tns.";charset=utf8";
 $conn = new PDO($dsn, "d201902679", "1003");
 
 switch($_GET['mode']){
-    case 'insert':
-        $stmt = $conn -> prepare("INSERT INTO TP_MOVIE(MID, TITLE, OPEN_DAY, DIRECTOR, RATING, LENGTH) 
-                VALUES ((SELECT NVL(MAX(MID), 0) + 1 FROM TP_MOVIE), :TITLE, :OPEN_DAY, :DIRECTOR,:RATING,:LENGTH)");
-
-        $stmt->bindParam(':MID',$MID); 
-        $stmt->bindParam(':TITLE',$TITLE); 
-        $stmt->bindParam(':OPEN_DAY',$OPEN_DAY);
-        $stmt->bindParam(':RATING',$RATING);
-
-        $MID = $_POST['MID'];
-        $TITLE = $_POST['TITLE']; 
-        $OPEN_DAY = $_POST['OPEN_DAY'];
-        $RATING = $_POST['RATING']; 
-
-        $stmt->execute();
-        header("Location: serach_mv.php");
-        break;
-    case 'delete':
-        $stmt = $conn->prepare('DELETE FROM TP_MOVIE WHERE MID = :MID');
-        $stmt->bindParam(':MID', $MID); 
-        $MID = $_POST['MID'];
-        $stmt->execute();
-        header("Location: serach_mv.php");
-        break;
-    case 'modify':
-
-
-        $stmt = $conn->prepare("UPDATE TP_MOVIE SET MID=:MID, TITLE=:TITLE, OPEN_DAY=:OPEN_DAY, DIRECTOR=:DIRECTOR, RATING=:RATING,LENGTH=:LENGTH
-        WHERE MID = :MID");
-        $stmt->bindParam(':MID',$MID); 
-        $stmt->bindParam(':TITLE',$TITLE); 
-        $stmt->bindParam(':OPEN_DAY',$OPEN_DAY);
-        $stmt->bindParam(':RATING',$RATING);
-        $stmt->bindParam(':DIRECTOR',$DIRECTOR);
-        $stmt->bindParam(':LENGTH',$LENGTH);
-
-
-        $MID = $_POST['MID'];
-        $TITLE = $_POST['TITLE']; 
-        $OPEN_DAY = $_POST['OPEN_DAY'];
-        $RATING = $_POST['RATING']; 
-        $RATING = $DIRECTOR['DIRECTOR']; 
-        $RATING = $LENGTH['LENGTH']; 
-
-        $stmt->execute();
-
-        break;
+    
     case 'reserve' :
         $SDATETIME = '20'.$_POST['SDATETIME']; 
         $RSTATUS='R';
@@ -85,14 +39,56 @@ switch($_GET['mode']){
 
                 $stmt->execute();
                 
-                
             }
-            // echo "<script>location.href='booklist.php'; alert('영화가 예매되었습니다.')</script>";
-            header("Location: mailer.php");
+            // header("Location: mailer.php");
+            ?>
+        
+            <script>alert('예매가 완료되었습니다.');</script>
+            <?php
+            header("Location: search_mv.php");
             break;
         }
+        break;
+    case 'cancle':
+        $SEAT_NUM = $_GET['seat_num'];
+        $SCH_ID = $_GET['sche_id'];
+
+        $stmt = $conn->prepare("UPDATE TP_TICKETING SET STATUS ='C'
+        WHERE CID = :id
+        and SEATS = :seatnum
+        and SID = :sche_id");
+
+        $stmt->bindParam(':seatnum',$SEAT_NUM); 
+        $stmt->bindParam(':sche_id',$SCH_ID);
+        $stmt->bindParam(':id',$id);
+
+
+        $stmt->execute();
+        
+        header("Location: mypage.php?&mode=Cancled");
 
         
         break;
+    case 'Watched':
+        
+        
+        $stmt = $conn->prepare("UPDATE ( SELECT TI.STATUS AS ST
+            FROM TP_SCHEDULE SC, TP_TICKETING TI
+            WHERE SC.SID = TI.SID
+            and SC.SDATETIME < SYSDATE 
+            And TI.CID=:id
+            and TI.STATUS='R'
+            )
+            SET ST='W'
+        ");
+
+        $stmt->bindParam(':id',$id);
+       
+        $stmt->execute(); 
+
+        header("Location: mypage.php?&mode=Watched");
+        break;
+
+        
 }
 ?>
