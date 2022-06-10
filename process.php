@@ -75,30 +75,23 @@ switch($_GET['mode']){
         if($CNT<10 && $CNT > 0){
             foreach($seat_list as $SEAT_NUM){
 
-
                 $stmt = $conn -> prepare("INSERT INTO TP_TICKETING(RC_DATE, SEATS, STATUS, CID, SID) 
-                VALUES ( TO_DATE(:SDATETIME, 'YYYY-MM-DD HH:MI'), :SEAT_NUM, :RSTATUS,:CID,:SCID)");
+                VALUES ( SYSDATE, :SEAT_NUM, :RSTATUS,:CID,:SCID)");
 
-                $stmt->bindParam(':SDATETIME',$SDATETIME); 
-                echo($SDATETIME);
                 $stmt->bindParam(':SEAT_NUM',$SEAT_NUM); 
-                echo($SEAT_NUM);
                 $stmt->bindParam(':RSTATUS',$RSTATUS); 
-                echo($RSTATUS);
                 $stmt->bindParam(':CID',$CID); 
-                echo($CID);
                 $stmt->bindParam(':SCID',$SCID); 
-                echo($SCID);
-
 
                 $stmt->execute();
-                echo "<script>location.href='booklist.php'; alert('영화가 예매되었습니다.')</script>";
-
-                break;
+                
+                
             }
+            // echo "<script>location.href='booklist.php'; alert('영화가 예매되었습니다.')</script>";
+            header("Location: mailer.php");
+            break;
         }
 
-        header("Location: reservePage.php?MID=$MID&SDATETIME=$SDATETIME&TNAME=$TNAME&CNT=$CNT&seat_list=$seat_list");
         
         break;
 }

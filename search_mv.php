@@ -4,8 +4,10 @@ $tns = "(DESCRIPTION=
         (CONNECT_DATA= (SERVICE_NAME=XE)) )";
 $dsn = "oci:dbname=".$tns.";charset=utf8";
 $username = 'd201902679'; $password = '1003';
+
 $searchWord = $_GET['searchWord'] ?? '';
 $searchDate = $_GET['searchDate'] ?? '';
+$mode =$_GET['mode'] ?? 'search';
 
 try {
     $conn = new PDO($dsn, $username, $password);
@@ -13,6 +15,7 @@ try {
     echo("에러 내용: ".$e -> getMessage());
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -61,7 +64,7 @@ try {
             <tr>
                 <th>영화 ID</th>
                 <th>영화 제목</th>
-                <th>상영 일자</th>
+                <th>개봉 날짜</th>
                 <th>연령</th> 
             </tr>
         </thead>
@@ -69,50 +72,88 @@ try {
         <tbody>
 
             <?php
-            if($searchDate==''){
-                $searchDate = isset($_POST["searchWord"]) ? $searchDate : '@';
-                $stmt = $conn -> prepare("SELECT TP_MOVIE.MID, TITLE, TO_CHAR(SDATETIME,'YY-MM-DD'), RATING 
-                FROM TP_MOVIE,TP_SCHEDULE WHERE TP_MOVIE.MID=TP_SCHEDULE.MID 
-                and LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
-                and '20'||TO_CHAR(SDATETIME+1,'YY-MM-DD') >= TO_CHAR(SYSDATE,'YYYY-MM-DD')
-                and not '20'||TO_CHAR(SDATETIME,'YY-MM-DD') LIKE :searchDate
-                ORDER BY SDATETIME 
+            if($mode=='on_show'){
+                $searchDate = isset($_POST["searchDate"]) ? $searchDate : '@';
+                $searchWord = isset($_POST["searchWord"]) ? $searchWord : '@';
+
+                $stmt = $conn -> prepare("SELECT MID, TITLE, TO_CHAR(OPEN_DAY,'YY-MM-DD'), RATING 
+                FROM TP_MOVIE WHERE not LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
+                and not '20'||TO_CHAR(OPEN_DAY,'YY-MM-DD') LIKE :searchDate
+                and '20'||TO_CHAR(OPEN_DAY,'YY-MM-DD') >= TO_CHAR(SYSDATE-10,'YYYY-MM-DD')
+                and '20'||TO_CHAR(OPEN_DAY,'YY-MM-DD') <= TO_CHAR(SYSDATE,'YYYY-MM-DD')
+                ORDER BY OPEN_DAY 
                 ");
                 $stmt -> execute(array($searchWord,$searchDate));
-
-
-            }
-            else if($searchWord==''){
+            }else if($mode =='be_shown' ){
+                $searchDate = isset($_POST["searchDate"]) ? $searchDate : '@';
                 $searchWord = isset($_POST["searchWord"]) ? $searchWord : '@';
-               
-                $stmt = $conn -> prepare("SELECT TP_MOVIE.MID, TITLE, TO_CHAR(SDATETIME,'YY-MM-DD'), RATING 
-                FROM TP_MOVIE,TP_SCHEDULE WHERE TP_MOVIE.MID=TP_SCHEDULE.MID 
-                and not LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
-                and '20'||TO_CHAR(SDATETIME,'YY-MM-DD') >= TO_CHAR(SYSDATE,'YYYY-MM-DD')
-                and not '20'||TO_CHAR(SDATETIME,'YY-MM-DD') LIKE :searchDate
-                ORDER BY SDATETIME 
+
+                $stmt = $conn -> prepare("SELECT MID, TITLE, TO_CHAR(OPEN_DAY,'YY-MM-DD'), RATING 
+                FROM TP_MOVIE WHERE not LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
+                and not '20'||TO_CHAR(OPEN_DAY,'YY-MM-DD') LIKE :searchDate
+                and '20'||TO_CHAR(OPEN_DAY,'YY-MM-DD') > TO_CHAR(SYSDATE,'YYYY-MM-DD')
+                ORDER BY OPEN_DAY 
                 ");
-                $stmt -> execute(array($searchWord, $searchDate));
-
+                $stmt -> execute(array($searchWord,$searchDate));
             }
-            else{
+            else if($mode == 'search'){
 
-                $stmt = $conn -> prepare("SELECT TP_MOVIE.MID, TITLE, TO_CHAR(SDATETIME,'YY-MM-DD'), RATING 
-            FROM TP_MOVIE,TP_SCHEDULE WHERE TP_MOVIE.MID=TP_SCHEDULE.MID 
-            and LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
-            and '20'||TO_CHAR(SDATETIME+1,'YY-MM-DD') >= TO_CHAR(SYSDATE,'YYYY-MM-DD')
-            and not '20'||TO_CHAR(SDATETIME,'YY-MM-DD') LIKE :searchDate
-            ORDER BY SDATETIME 
-            ");
-            $stmt -> execute(array($searchWord,$searchDate));
+                if($searchDate=='' && $searchWord==''){
+                    $searchDate = isset($_POST["searchDate"]) ? $searchDate : '@';
+                    $searchWord = isset($_POST["searchWord"]) ? $searchWord : '@';
 
+                    $stmt = $conn -> prepare("SELECT MID, TITLE, TO_CHAR(OPEN_DAY,'YY-MM-DD'), RATING 
+                    FROM TP_MOVIE WHERE not LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
+                    and not '20'||TO_CHAR(OPEN_DAY,'YY-MM-DD') LIKE :searchDate
+                    and '20'||TO_CHAR(OPEN_DAY,'YY-MM-DD') >= TO_CHAR(SYSDATE-10,'YYYY-MM-DD')
+                    ORDER BY OPEN_DAY 
+                    ");
+                    $stmt -> execute(array($searchWord,$searchDate));
+
+                }
+                else if($searchDate==''){
+                    $searchDate = isset($_POST["searchDate"]) ? $searchDate : '@';
+
+
+                    $stmt = $conn -> prepare("SELECT MID, TITLE, TO_CHAR(OPEN_DAY,'YY-MM-DD'), RATING 
+                    FROM TP_MOVIE WHERE LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
+                    and not '20'||TO_CHAR(OPEN_DAY,'YY-MM-DD') LIKE :searchDate
+                    and '20'||TO_CHAR(OPEN_DAY,'YY-MM-DD') >= TO_CHAR(SYSDATE-10,'YYYY-MM-DD')
+                    ORDER BY OPEN_DAY 
+                    ");
+                    $stmt -> execute(array($searchWord,$searchDate));
+    
+                }
+                else if($searchWord==''){
+                    $searchWord = isset($_POST["searchWord"]) ? $searchWord : '@';
+
+                    $stmt = $conn -> prepare("SELECT MID, TITLE, TO_CHAR(OPEN_DAY,'YY-MM-DD'), RATING 
+                    FROM TP_MOVIE WHERE not LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
+                    and '20'||TO_CHAR(OPEN_DAY+10,'YY-MM-DD') >=:searchDate
+                    and '20'||TO_CHAR(OPEN_DAY,'YY-MM-DD') <= :searchDate
+                    ORDER BY OPEN_DAY 
+                    ");
+                    $stmt -> execute(array($searchWord,$searchDate));
+    
+                }
+                else{
+    
+                    $stmt = $conn -> prepare("SELECT TP_MOVIE.MID, TITLE, TO_CHAR(OPEN_DAY,'YY-MM-DD'), RATING 
+                    FROM TP_MOVIE WHERE
+                    LOWER(TITLE) LIKE '%'|| :searchWord || '%' 
+                    and '20'||TO_CHAR(OPEN_DAY+10,'YY-MM-DD') >=:searchDate
+                    and '20'||TO_CHAR(OPEN_DAY,'YY-MM-DD') <= :searchDate
+                    ORDER BY OPEN_DAY 
+                    ");
+                    $stmt -> execute(array($searchWord,$searchDate));
+                }
             }
             while ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
             ?>
             <tr>
                 <td><?= $row['MID'] ?></td>
                 <td><a href="movie_info.php?mvid=<?= $row['MID'] ?>"><?= $row['TITLE']?></a></td>
-                <td><?= $row['TO_CHAR(SDATETIME,\'YY-MM-DD\')'] ?></td>
+                <td><?= $row['TO_CHAR(OPEN_DAY,\'YY-MM-DD\')'] ?></td>
                 <td><?= $row['RATING'] ?></td>
 
             </tr>
