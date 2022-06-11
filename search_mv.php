@@ -152,7 +152,7 @@ try {
             ?>
             <tr>
                 <td><?= $row['MID'] ?></td>
-                <td><a href="movie_info.php?mvid=<?= $row['MID'] ?>"><?= $row['TITLE']?></a></td>
+                <td><a href="movie_info.php?mvid=<?= $row['MID']?>&mode=<?=$mode?>"><?= $row['TITLE']?></a></td>
                 <td><?= $row['TO_CHAR(OPEN_DAY,\'YY-MM-DD\')'] ?></td>
                 <td><?= $row['RATING'] ?></td>
 

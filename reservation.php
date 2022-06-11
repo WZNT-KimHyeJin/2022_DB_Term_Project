@@ -16,26 +16,23 @@ try {
 } catch (PDOException $e) {
     echo("에러 내용: ".$e -> getMessage());
 }
-$stmt = $conn -> prepare("SELECT MV.MID, MV.TITLE, TH.TNAME, TO_CHAR(SC.SDATETIME,'YY-MM-DD HH:MI') AS MVTIME, TH.SEATS FROM TP_SCHEDULE SC
-LEFT OUTER JOIN TP_MOVIE MV ON SC.MID = MV.MID
-INNER JOIN TP_THEATER TH ON TH.TNAME = SC.TNAME
-WHERE MV.MID = ?
-and '20'||TO_CHAR(SDATETIME+1,'YY-MM-DD HH:MI')>=TO_CHAR(SYSDATE,'YYYY-MM-DD HH:MI')
-ORDER BY TH.TNAME 
+
+$stmt = $conn -> prepare("SELECT MV.MID, MV.TITLE, IQ.TNAME, 
+TO_CHAR(IQ.SDATETIME,'YY-MM-DD HH:MI') AS MVTIME, IQ.SID, IQ.ES AS EXTRASEAT
+FROM (SELECT TH.TNAME,SC.SID, SC.MID,SC.SDATETIME,SUM(TH.SEATS+(NVL(SC.EXT_SEATS,0)*-1)) ES
+    FROM  TP_SCHEDULE SC
+    INNER JOIN TP_THEATER TH ON TH.TNAME = SC.TNAME
+    GROUP BY (SC.SID, SC.MID,TH.SEATS,SC.EXT_SEATS,SC.SDATETIME,TH.TNAME)
+    HAVING SC.MID = :MID) IQ
+LEFT OUTER JOIN TP_MOVIE MV ON IQ.MID = MV.MID
  ");
 $stmt -> execute(array($MID));
 $TITLE = '';
 $TNAME = '';
-$MID = '';
 $SDATETIME='';
-$SEATS='';
+$SCID='';
+$EXTRASEAT='';
 
-if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
-    $MID = $row['MID'];
-    $TITLE = $row['TITLE'];
-    $TNAME = $row['TNAME'];
-    $SDATETIME = $row['MVTIME'];
-    $SEATS = $row['SEATS'];
 
 ?>
 
@@ -54,7 +51,7 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
         <h1 class="text-center"><a href="main.php"> CNU Cinema</a></h1>
 </div>
     <div class="container">
-        <h4 class="display-6">상영 리스트 : <?= $TITLE ?></h4>
+        <h4 class="display-6">상영 리스트 </h4>
         <table class="table table-bordered text-center">
             
             <tbody>
@@ -71,9 +68,9 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
                     <td><?= $row['TNAME'] ?></td> 
                     <td><?= $row['TITLE'] ?></td> 
                     <td><?= $row['MVTIME'] ?></td> 
-                    <td><?= $row['SEATS'] ?></td> 
+                    <td><?= $row['EXTRASEAT'] ?></td> 
                     <td>
-                        <form action="reservePage.php?MID=<?= $MID ?>&SDATETIME=<?= $SDATETIME ?>&TNAME=<?= $TNAME ?>&CNT=<?= $CNT ?>" method="post" class="row">
+                        <form action="reservePage.php?MID=<?= $MID ?>&SCID=<?= $row['SID']?>" method="post" class="row">
                         <button type="submit" class="btn btn-success">예매</button>
                         </form>
                     <td>
@@ -84,10 +81,7 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
 
             </tbody>
         </table>
-    <?php
-    }
-    ?>
-        
+    
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-
 gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>

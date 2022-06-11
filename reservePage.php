@@ -2,11 +2,9 @@
 session_start();
 $id = $_SESSION["id"];
 $MID = $_GET['MID'];
-$SDATETIME = $_GET['SDATETIME'];
-$TNAME = $_GET['TNAME'];
+$SCID = $_GET['SCID'];
 $CNT = $_GET['CNT'] ?? 0;
 $seat_list =$_GET['seat_list'] ?? '';
-
 
 $tns = "
     (DESCRIPTION=
@@ -16,14 +14,16 @@ $tns = "
 $dsn = "oci:dbname=".$tns.";charset=utf8";
 $conn = new PDO($dsn, "d201902679", "1003");
 
-$stmt = $conn -> prepare("SELECT MV.MID, MV.TITLE, TH.TNAME, TO_CHAR(SC.SDATETIME,'YY-MM-DD HH:MI') AS MVTIME, TH.SEATS, SC.SID
+$stmt = $conn -> prepare("
+SELECT MV.MID, MV.TITLE, TH.TNAME, TO_CHAR(SC.SDATETIME,'YY-MM-DD HH:MI') AS MVTIME, TH.SEATS, SC.SID
 FROM TP_SCHEDULE SC
 LEFT OUTER JOIN TP_MOVIE MV ON SC.MID = MV.MID
 INNER JOIN TP_THEATER TH ON TH.TNAME = SC.TNAME
-WHERE MV.MID = ?
+WHERE SC.SID = :SCID
 ORDER BY TH.TNAME 
  ");
- $stmt -> execute(array($MID));
+ $stmt->bindParam(':SCID',$SCID); 
+ $stmt -> execute(array($SCID));
  $TITLE = '';
  $TNAME = '';
  $MID = '';
@@ -99,7 +99,6 @@ ORDER BY TH.TNAME
 <?php
     if($CNT == 0){
         ?>
-        
             <script>alert('좌석을 선택 해 주세요');</script>
         <?php
     }else if($CNT>10){

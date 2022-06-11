@@ -89,6 +89,7 @@ switch($_GET['mode']){
         header("Location: mypage.php?&mode=Watched");
         break;
 
+    
         
 }
 ?>

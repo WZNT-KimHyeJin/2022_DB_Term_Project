@@ -11,8 +11,8 @@ $password = '1003';
 
 $id = $_POST['id'] ?? '';
 $pw = $_POST['pw'] ?? '';
-$ADMIN_ID = '000';
-$ADMIN_PW = '000';
+$ADMIN_ID = '9999';
+$ADMIN_PW = '9999';
 
 try {    
     $conn = new PDO($dsn, $username, $password);
@@ -34,7 +34,6 @@ try {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
     <link rel=”stylesheet” href=”http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css“>
-    <link rel="stylesheet" href="login.css">
     <title>CNU Cinema</title>
 </head>
 <body>
@@ -47,6 +46,7 @@ try {
         
 $stmt = $conn -> prepare("SELECT CID, PASSWORD, NAME FROM TP_CUSTOMER WHERE CID = :id");
 $stmt -> execute(array((int)$id));
+
 while ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
     if($row['PASSWORD'] != $pw){
         ?>
@@ -54,6 +54,11 @@ while ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
         <?php
     }else{
         // 로그인 성공 시 id를 session에 저장하고 main페이지로 이동
+        if($id==$ADMIN_ID){
+            ?>
+            <script>alert('관리자로 접속하였습니다.'); location.href='admin.php'</script>
+            <?php
+        }
         session_start();
         $_SESSION['id'] = $id;
         ?>
@@ -66,11 +71,11 @@ while ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
         <form method="post">
             <div class="col-12">
                 <label for="id" class="col-4 text-center">ID</label>
-                <input type="text" id="id" class="col-6" name="id" maxlength="3" value="<?=$id?>">
+                <input type="text" id="id" class="col-6" name="id" maxlength="5" value="<?=$id?>">
             </div>
             <div class="col-12">
                 <label for="pw" class="col-4 text-center">PASSWORD</label>
-                <input type="password" class="col-6" id="pw" name="pw" maxlength="12" value="<?=$pw?>">
+                <input type="password" class="col-6" id="pw" name="pw" maxlength="20" value="<?=$pw?>">
             </div>
             <div class="login">
                 <button type="submit" class="btn btn-light">login</button>

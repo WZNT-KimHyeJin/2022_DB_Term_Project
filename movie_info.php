@@ -9,12 +9,27 @@ $conn = new PDO($dsn, $username, $password);
 session_start();
 $id = $_SESSION["id"];
 $MID = $_GET['mvid'];
+$mode = $_GET['mode'];
+
 try {
     $conn = new PDO($dsn, $username, $password);
 } catch (PDOException $e) {
     echo("에러 내용: ".$e -> getMessage());
 }
-$stmt = $conn -> prepare("SELECT MID, TITLE, RATING,OPEN_DAY,DIRECTOR,LENGTH FROM TP_MOVIE WHERE MID = ? ");
+
+
+
+
+$stmt = $conn -> prepare("SELECT MV.MID, MV. TITLE, RATING,OPEN_DAY,DIRECTOR,LENGTH,CNT,SUMM,IQ.CNT_NUM
+FROM TP_MOVIE MV
+LEFT JOIN (SELECT SC.MID, COUNT(STATUS)AS CNT_NUM
+FROM TP_SCHEDULE SC
+INNER JOIN TP_TICKETING TI ON TI.SID = SC.SID
+GROUP BY SC.MID, STATUS
+HAVING TI.STATUS ='R')IQ
+ON MV.MID = IQ.MID
+where MV.MID = ? ");
+
 $stmt -> execute(array($MID));
 $TITLE = '';
 $RATING = '';
@@ -22,6 +37,9 @@ $MID = '';
 $OPEN_DAY='';
 $DIRECTOR='';
 $LENGTH='';
+$CNT='';
+$RESERVE_CNT='';
+$SUMM='';
 
 if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
     $MID = $row['MID'];
@@ -30,6 +48,9 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
     $OPEN_DAY = $row['OPEN_DAY'];
     $DIRECTOR = $row['DIRECTOR'];
     $LENGTH = $row['LENGTH'];
+    $CNT = $row['CNT'];
+    $RESERVE_CNT = $row['CNT_NUM']?? '0';
+    $SUMM = $row['SUMM'];
     
 ?>
 
@@ -51,12 +72,37 @@ if ($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
         <h2 class="display-6">상세 화면</h2>
         <table class="table table-bordered text-center">
             <tbody>
-                <tr> <td>영화 ID</td> <td><?= $MID ?></td> </tr>
-                <tr> <td>영화 제목</td> <td><?= $TITLE ?></td> </tr>
-                <tr> <td>관람 연령 등급</td> <td><?= $RATING ?></td> </tr>
-                <tr> <td>상영 시간</td> <td><?= $LENGTH ?>분</td> </tr>
-                <tr> <td>개봉날짜</td> <td><?= $OPEN_DAY ?></td> </tr>
-                <tr> <td>감독</td> <td><?= $DIRECTOR ?></td> </tr>
+                <tr> 
+                    <th>영화 ID</th> 
+                    <th>영화 제목</th> 
+                    <th>관람 연령</th> 
+                    <th>상영시간</th> 
+                </tr>
+                <tr> 
+                    <td><?= $MID ?></td> 
+                    <td><?= $TITLE ?></td> 
+                    <td><?= $RATING ?></td> 
+                    <td><?= $LENGTH ?>분</td> 
+                </tr>
+                <tr> 
+                    <th>개봉날짜</th> 
+                    <th>감독</th> 
+                    <th>현예매수</th> 
+                    <?= $mode == 'be_shown' ? '': '<th>누적 관객수</th>' ?>
+                </tr>
+                <tr> 
+                    <td><?= $OPEN_DAY ?></td> 
+                    <td><?= $DIRECTOR ?></td> 
+                    <td><?= $RESERVE_CNT ?></td> 
+                    <?= $mode == 'be_shown' ? '':  '<td>'.$CNT.'</td>' ?>
+                </tr>
+                <tr> 
+                    <th colspan="4">줄거리</th> 
+                </tr>
+                <tr>
+                    <td colspan="4"><?= $SUMM ?></td> 
+                </tr>
+               
 
 
             </tbody>
